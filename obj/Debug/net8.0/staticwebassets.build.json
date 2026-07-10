@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "utiNTmcm7eqqlPSVE8sY+75QB73IywJcIiR4FAP351s=",
+  "Source": "IAM-API",
+  "BasePath": "_content/IAM-API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
