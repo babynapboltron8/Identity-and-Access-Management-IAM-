@@ -1,6 +1,6 @@
 # ==========================================
 
-# ASP.NET Core 8 + EF Core 8 Setup
+## ASP.NET Core 8 + EF Core 8 Setup
 
 # ==========================================
 
@@ -18,7 +18,7 @@ dotnet --list-runtimes
 
 # ==========================================
 
-# Install EF Core 8 Packages
+## Install EF Core 8 Packages
 
 # ==========================================
 
@@ -32,7 +32,7 @@ dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 8.
 
 # ==========================================
 
-# Install dotnet-ef 8 CLI Tool
+## Install dotnet-ef 8 CLI Tool
 
 # ==========================================
 
@@ -48,7 +48,7 @@ dotnet ef --version
 
 # ==========================================
 
-# Install ASP.NET Core Code Generator 8
+## Install ASP.NET Core Code Generator 8
 
 # ==========================================
 
@@ -64,7 +64,7 @@ dotnet aspnet-codegenerator --version
 
 # ==========================================
 
-# Verify Installed Packages
+## Verify Installed Packages
 
 # ==========================================
 
@@ -72,7 +72,7 @@ dotnet list package
 
 # ==========================================
 
-# Restore, Clean, Build
+## Restore, Clean, Build
 
 # ==========================================
 
@@ -84,7 +84,7 @@ dotnet build
 
 # ==========================================
 
-# Run Application
+## Run Application
 
 # ==========================================
 
@@ -92,11 +92,11 @@ dotnet watch
 
 # ==========================================
 
-# EF Core Migration Commands
+## EF Core Migration Commands
 
 # ==========================================
 
-# Create Migration
+## Create Migration
 
 dotnet ef migrations add InitialCreate
 
@@ -114,7 +114,7 @@ dotnet ef migrations remove
 
 # ==========================================
 
-# Scaffolding (dotnet aspnet-codegenerator)
+## Scaffolding (dotnet aspnet-codegenerator)
 
 # ==========================================
 
