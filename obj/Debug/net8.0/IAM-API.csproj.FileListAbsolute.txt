@@ -237,6 +237,7 @@ C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\IAM-API.AssemblyInfo.cs
 C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\IAM-API.csproj.CoreCompileInputs.cache
 C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\IAM-API.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\IAM-API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\IAM-API.sourcelink.json
 C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Nap\Desktop\IAM-API\obj\Debug\net8.0\staticwebassets\msbuild.IAM-API.Microsoft.AspNetCore.StaticWebAssets.props

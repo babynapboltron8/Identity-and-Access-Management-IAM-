@@ -118,4 +118,4 @@ dotnet ef migrations remove
 
 # ==========================================
 
-dotnet aspnet-codegenerator controller -name UserController -async -api -m User -dc IAMContext -outDir \_Controllers
+dotnet aspnet-codegenerator controller -name UserController -async -api -m User -dc IAMContext -outDir \Controllers

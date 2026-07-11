@@ -10,4 +10,5 @@ public class IAMContext : DbContext
     }
 
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Role> Roles { get; set; } = null!;
 }
