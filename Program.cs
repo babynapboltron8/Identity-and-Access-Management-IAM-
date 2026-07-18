@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using IAM_API._Data;
+using IAM_API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<IAMContext>(opt =>
-    opt.UseInMemoryDatabase("IAMProject"));
+builder.Services.AddDbContext<IAMContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

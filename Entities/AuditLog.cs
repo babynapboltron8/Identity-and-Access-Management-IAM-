@@ -1,6 +1,6 @@
 namespace IAM_API.Entities
 {
-    public class AuditLogs
+    public class AuditLog
     {
         public int Id { get; set; }
         public int UserId { get; set; }

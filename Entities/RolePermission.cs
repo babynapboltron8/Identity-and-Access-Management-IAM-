@@ -1,8 +1,8 @@
 namespace IAM_API.Entities
 {
-    public class UserRoles
+    public class RolePermission
     {
-        public int UserId { get; set; }
         public int RoleId { get; set; }
+        public int PermissionId { get; set; }
     }
 }

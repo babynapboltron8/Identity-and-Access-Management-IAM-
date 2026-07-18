@@ -1,4 +1,4 @@
-namespace IAM_API._Entities;
+namespace IAM_API.Entities;
 
 public class User
 {

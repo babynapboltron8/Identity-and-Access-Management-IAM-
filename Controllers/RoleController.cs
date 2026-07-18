@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using IAM_API._Data;
-using IAM_API._Entities;
+using IAM_API.Data;
+using IAM_API.Entities;
 
-namespace IAM_API._Controllers
+namespace IAM_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

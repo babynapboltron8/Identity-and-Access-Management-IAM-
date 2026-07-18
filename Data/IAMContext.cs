@@ -1,7 +1,8 @@
+using IAM_API.Entities;
 using Microsoft.EntityFrameworkCore;
-using IAM_API._Entities;
 
-namespace IAM_API._Data;
+
+namespace IAM_API.Data;
 
 public class IAMContext : DbContext
 {
@@ -11,4 +12,20 @@ public class IAMContext : DbContext
 
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Role> Roles { get; set; } = null!;
+    public DbSet<Permission> Permissions { get; set; } = null!;
+    public DbSet<UserRole> UserRoles { get; set; } = null!;
+    public DbSet<RolePermission> RolePermissions { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<UserRole>()
+            .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+        modelBuilder.Entity<RolePermission>()
+            .HasKey(rp => new { rp.RoleId, rp.PermissionId });
+    }
 }

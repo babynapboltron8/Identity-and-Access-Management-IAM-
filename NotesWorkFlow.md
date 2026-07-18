@@ -1,294 +1,478 @@
-### Development Workflow
+# Web API Development Workflow
 
-## Architecture Flow
+> A complete development guide
 
+---
+
+# Overall Development Workflow
+
+```text
+Requirements
+      │
+      ▼
+Database Design
+      │
+      ▼
+Create Entity Models
+      │
+      ▼
+Create DbContext
+      │
+      ▼
+Configure OnModelCreating
+      │
+      ▼
+Configure SQL Server
+      │
+      ▼
+Register Services (Dependency Injection)
+      │
+      ▼
+Create Migration
+      │
+      ▼
+Update Database
+      │
+      ▼
+Verify Database
+      │
+      ▼
+Create Repository
+      │
+      ▼
+Create Service
+      │
+      ▼
+Create DTOs
+      │
+      ▼
+Add Validation
+      │
+      ▼
+Create Controllers
+      │
+      ▼
+Authentication
+      │
+      ▼
+Authorization
+      │
+      ▼
+Middleware
+      │
+      ▼
+Testing
+      │
+      ▼
+Deployment
 ```
-Client Application
-        |
-        ↓
+
+---
+
+# Runtime Request Flow
+
+```text
+Client
+   │
+HTTP Request
+   │
+   ▼
+Middleware
+   │
+   ▼
+Authentication
+   │
+   ▼
+Authorization
+   │
+   ▼
 Controller
-        |
-        ↓
+   │
+   ▼
 Service
-        |
-        ↓
+   │
+   ▼
 Repository
-        |
-        ↓
+   │
+   ▼
 EF Core DbContext
-        |
-        ↓
-SQL Server Database
+   │
+   ▼
+SQL Server
+   │
+   ▲
+Repository
+   │
+   ▲
+Service
+   │
+   ▲
+Controller
+   │
+HTTP Response
+   │
+Client
 ```
 
 ---
 
-## Development Order
+# Project Structure
 
-```
-1. Database Design
-2. Create Entities (Models)
-3. Create DbContext
-4. Configure Relationships
-5. Configure SQL Server
-6. Create Migration
-7. Update Database
-8. Verify SQL Tables
-9. Create Repositories
-10. Create Services
-11. Create DTOs
-12. Create Controllers
-13. Add Authentication
-14. Add Authorization
-15. Add Middleware
-16. Testing
-17. Deployment
+```text
+IAM.API
+│
+├── Authentication
+│   ├── JwtService.cs
+│   └── PasswordHasher.cs
+│
+├── Authorization
+│   ├── PermissionRequirement.cs
+│   └── PermissionHandler.cs
+│
+├── Controllers
+│   ├── AuthController.cs
+│   ├── UsersController.cs
+│   ├── RolesController.cs
+│   └── PermissionsController.cs
+│
+├── Data
+│   └── IAMContext.cs
+│
+├── DTOs
+│   ├── Auth
+│   ├── Users
+│   ├── Roles
+│   └── Permissions
+│
+├── Entities
+│   ├── User.cs
+│   ├── Role.cs
+│   ├── Permission.cs
+│   ├── UserRole.cs
+│   ├── RolePermission.cs
+│   ├── RefreshToken.cs
+│   └── AuditLog.cs
+│
+├── Middleware
+│   └── ExceptionMiddleware.cs
+│
+├── Repositories
+│   ├── UserRepository.cs
+│   ├── RoleRepository.cs
+│   └── PermissionRepository.cs
+│
+├── Services
+│   ├── AuthService.cs
+│   ├── UserService.cs
+│   ├── RoleService.cs
+│   └── PermissionService.cs
+│
+├── Migrations
+│
+├── appsettings.json
+├── Program.cs
+└── IAM.API.csproj
 ```
 
 ---
 
-## Phase 1 — Database Design
+# Phase 1 — Requirements
 
-Before coding, design the database.
+Before writing code, understand the feature.
 
-# Tables
+Questions:
+
+- What problem am I solving?
+- What data is needed?
+- Who can access it?
+- What API endpoints are required?
+
+Example:
+
+```
+Feature
+
+Create User
+
+↓
+
+Requires
+
+Users table
+
+↓
+
+POST /api/users
+```
+
+Checklist
+
+- [ ] Feature understood
+- [ ] API endpoints identified
+- [ ] Business rules identified
+
+---
+
+# Phase 2 — Database Design
+
+Design the database before coding.
+
+Tables
 
 ```
 Users
-
 Roles
-
 Permissions
-
 UserRoles
-
 RolePermissions
-
 RefreshTokens
-
 AuditLogs
 ```
 
----
+Relationship
 
-# Database Checklist
-
-- [ ] Define tables
-- [ ] Define columns
-- [ ] Define primary keys
-- [ ] Define foreign keys
-- [ ] Define relationships
-- [ ] Define required fields
-- [ ] Define default values
-
----
-
-## Phase 2 — Create Entities (Models)
-
-Location:
-
-```
-Entities
-│
-├── User.cs
-├── Role.cs
-├── Permission.cs
-├── UserRole.cs
-├── RolePermission.cs
-├── RefreshToken.cs
-└── AuditLog.cs
+```text
+User
+ |
+ └── UserRole
+          |
+          └── Role
+                  |
+                  └── RolePermission
+                            |
+                            └── Permission
 ```
 
-Entities represent database tables.
+Checklist
 
-Example:
+- [ ] Tables
+- [ ] Columns
+- [ ] Primary Keys
+- [ ] Foreign Keys
+- [ ] Relationships
+- [ ] Required Fields
+- [ ] Default Values
+
+---
+
+# Phase 3 — Create Entity Models
+
+Create one entity per table.
+
+Example
 
 ```csharp
 public class User
 {
     public Guid Id { get; set; }
 
-    public string Username { get; set; }
+    public string Username { get; set; } = "";
 
-    public string Email { get; set; }
+    public string Email { get; set; } = "";
 
-    public string PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = "";
 
-
-    public ICollection<UserRole> UserRoles { get; set; }
+    public ICollection<UserRole> UserRoles { get; set; } = [];
 }
 ```
 
-Checklist:
+Checklist
 
-- [ ] Every table has an Entity
-- [ ] Properties match database columns
+- [ ] One Entity per table
+- [ ] Properties match columns
 - [ ] Navigation properties added
-- [ ] Entity relationships planned
 
 ---
 
-## Phase 3 — Create DbContext
+# Phase 4 — Create DbContext
 
-Location:
+Location
 
 ```
-Data
-└── IAMContext.cs
+Data/IAMContext.cs
 ```
 
-Purpose:
+Responsibilities
 
-- Connect Entity Framework Core to SQL Server
-- Register entities
-- Configure database behavior
+- Register DbSets
+- Configure EF Core
+- Connect to SQL Server
 
-Example:
+Example
 
 ```csharp
 public class IAMContext : DbContext
 {
-    public IAMContext(
-        DbContextOptions<IAMContext> options)
+    public IAMContext(DbContextOptions<IAMContext> options)
         : base(options)
     {
     }
 
+    public DbSet<User> Users => Set<User>();
 
-    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles => Set<Role>();
 
-    public DbSet<Role> Roles { get; set; }
+    public DbSet<Permission> Permissions => Set<Permission>();
 
-    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 }
 ```
 
-Checklist:
+Checklist
 
 - [ ] DbContext created
-- [ ] DbSets added
-- [ ] Project builds successfully
+- [ ] DbSets registered
+- [ ] Project builds
 
 ---
 
-## Phase 4 — Configure Relationships
+# Phase 5 — Configure OnModelCreating
 
-Location:
+Purpose
 
-```
-IAMContext.cs
-```
+Configure database rules that EF Core cannot infer automatically.
 
-Configure:
+Common Uses
 
-- Primary Keys
+- Composite Keys
 - Foreign Keys
-- One-to-many relationships
-- Many-to-many relationships
+- One-to-Many
+- Many-to-Many
+- Cascade Delete
+- Default Values
+- Unique Indexes
+- Seed Data
 
-Example:
+Example
 
 ```csharp
-protected override void OnModelCreating(
-    ModelBuilder builder)
+protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
+    base.OnModelCreating(modelBuilder);
 
-    builder.Entity<UserRole>()
+    modelBuilder.Entity<UserRole>()
         .HasKey(x => new
         {
             x.UserId,
             x.RoleId
         });
 
+    modelBuilder.Entity<RolePermission>()
+        .HasKey(x => new
+        {
+            x.RoleId,
+            x.PermissionId
+        });
 }
 ```
 
-Checklist:
+Checklist
 
-- [ ] User → UserRole configured
-- [ ] Role → UserRole configured
-- [ ] Role → Permission configured
-- [ ] Delete behavior configured
+- [ ] Composite Keys
+- [ ] Foreign Keys
+- [ ] Relationships
+- [ ] Delete Behavior
+- [ ] Seed Data
 
 ---
 
-## Phase 5 — Configure SQL Server
+# Phase 6 — Configure SQL Server
 
-# appsettings.json
+appsettings.json
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=IAMDB;Trusted_Connection=True;TrustServerCertificate=True"
+    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=IAMDb;Trusted_Connection=True;TrustServerCertificate=True;"
   }
 }
 ```
 
----
-
-# Program.cs
+Program.cs
 
 ```csharp
-builder.Services.AddDbContext<IAMContext>(
-options =>
-options.UseSqlServer(
-builder.Configuration
-.GetConnectionString("DefaultConnection")
-));
+builder.Services.AddDbContext<IAMContext>(options =>
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 ```
 
-Checklist:
+Checklist
 
 - [ ] SQL Server installed
-- [ ] Connection string added
+- [ ] Connection String added
 - [ ] DbContext registered
-- [ ] Application starts
 
 ---
 
-## Phase 6 — Create Migration
+# Phase 7 — Register Dependency Injection
 
-Migration converts C# models into database instructions.
+Register repositories and services.
 
-Command:
+Example
+
+```csharp
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+```
+
+Checklist
+
+- [ ] Repository registered
+- [ ] Service registered
+
+---
+
+# Phase 8 — Create Migration
+
+Build first.
+
+```bash
+dotnet build
+```
+
+Create migration.
 
 ```bash
 dotnet ef migrations add InitialCreate
 ```
 
-Generated:
+Generated
 
 ```
 Migrations
 
-├── 20260711_InitialCreate.cs
-└── IAMContextModelSnapshot.cs
+InitialCreate.cs
+
+IAMContextModelSnapshot.cs
 ```
 
-Checklist:
+Checklist
 
+- [ ] Build succeeds
 - [ ] Migration created
-- [ ] No EF Core errors
-- [ ] Migration contains expected tables
+- [ ] Migration looks correct
 
 ---
 
-## Phase 7 — Create SQL Server Database
+# Phase 9 — Update Database
 
-Apply migration:
+Apply migration.
 
 ```bash
 dotnet ef database update
 ```
 
-Result:
+Verify
 
 ```
-SQL Server
-
-IAMDB
-
-Tables:
+IAMDb
 
 Users
 
@@ -305,58 +489,23 @@ RefreshTokens
 AuditLogs
 ```
 
-Checklist:
+Checklist
 
-- [ ] Database created
-- [ ] Tables exist
-- [ ] Foreign keys exist
-- [ ] Relationships are correct
-
----
-
-## Phase 8 — Verify Database
-
-Check using:
-
-```
-SQL Server Management Studio
-```
-
-Verify:
-
-```
-Users
-Roles
-Permissions
-UserRoles
-RolePermissions
-RefreshTokens
-AuditLogs
-```
-
-Checklist:
-
-- [ ] Database structure correct
-- [ ] No missing tables
-- [ ] No wrong relationships
+- [ ] Database exists
+- [ ] Tables created
+- [ ] Foreign Keys created
 
 ---
 
-## Phase 9 — Create Repositories
+# Phase 10 — Repository Layer
 
-Location:
+Purpose
 
-```
-Repositories
+Database access only.
 
-├── UserRepository.cs
-├── RoleRepository.cs
-└── PermissionRepository.cs
-```
+Flow
 
-Responsibility:
-
-```
+```text
 Repository
 
 ↓
@@ -368,47 +517,38 @@ DbContext
 Database
 ```
 
-Handles:
+Responsibilities
 
-- Query data
-- Insert data
-- Update data
-- Delete data
+- CRUD
+- LINQ Queries
 
-Checklist:
+No business logic.
 
-- [ ] CRUD completed
-- [ ] Only database logic exists here
+Checklist
+
+- [ ] CRUD implemented
+- [ ] Database logic only
 
 ---
 
-## Phase 10 — Create Services
+# Phase 11 — Service Layer
 
-Location:
+Purpose
 
-```
-Services
+Business logic.
 
-├── AuthService.cs
-├── UserService.cs
-├── RoleService.cs
-└── PermissionService.cs
-```
+Flow
 
-Responsibility:
-
-- Business logic
-- Validation
-- Application rules
-
-Example:
-
-```
-Create User
+```text
+Register User
 
 ↓
 
-Validate Email
+Validate Request
+
+↓
+
+Check Email
 
 ↓
 
@@ -416,73 +556,94 @@ Hash Password
 
 ↓
 
-Save User
+Assign Role
 
 ↓
 
-Assign Role
+Save User
 ```
 
-Checklist:
+Responsibilities
 
-- [ ] Business rules implemented
-- [ ] Validation added
+- Validation
+- Business Rules
+- Transactions
+
+Checklist
+
+- [ ] Business logic complete
 
 ---
 
-## Phase 11 — Create DTOs
+# Phase 12 — DTOs
 
-Purpose:
+Purpose
 
-- Protect database entities
-- Control API requests
-- Control API responses
+Separate API models from database models.
 
-Structure:
+Examples
 
 ```
-DTOs
+CreateUserDto
 
-├── Auth
-│   ├── LoginRequestDto.cs
-│   └── RegisterRequestDto.cs
-│
-├── Users
-│   ├── CreateUserDto.cs
-│   └── UpdateUserDto.cs
-│
-├── Roles
-│   ├── CreateRoleDto.cs
-│   └── RoleDto.cs
-│
-└── Permissions
-    └── PermissionDto.cs
+UpdateUserDto
+
+LoginRequestDto
+
+RoleDto
 ```
 
-Checklist:
+Checklist
 
-- [ ] Request DTOs created
-- [ ] Response DTOs created
-- [ ] Entities are not exposed directly
+- [ ] Request DTOs
+- [ ] Response DTOs
+- [ ] Entities never exposed
 
 ---
 
-## Phase 12 — Create Controllers
+# Phase 13 — Validation
 
-Location:
+Validate incoming requests.
 
+Options
+
+- DataAnnotations
+- FluentValidation
+
+Example
+
+```text
+CreateUserDto
+
+↓
+
+Validate
+
+↓
+
+Service
 ```
-Controllers
 
-├── AuthController.cs
-├── UsersController.cs
-├── RolesController.cs
-└── PermissionsController.cs
-```
+Checklist
 
-Flow:
+- [ ] DTO validation
+- [ ] Validation messages
 
-```
+---
+
+# Phase 14 — Controllers
+
+Responsibilities
+
+- Receive HTTP Request
+- Call Service
+- Return Response
+
+No business logic.
+
+Flow
+
+```text
 HTTP Request
 
 ↓
@@ -492,39 +653,32 @@ Controller
 ↓
 
 Service
-
-↓
-
-Repository
-
-↓
-
-Database
 ```
 
-Checklist:
+Checklist
 
-- [ ] Routes created
-- [ ] Swagger tested
-- [ ] HTTP responses correct
+- [ ] Routes
+- [ ] Swagger
+- [ ] Correct Status Codes
 
 ---
 
-## Phase 13 — Authentication
+# Phase 15 — Authentication
 
-Location:
-
-```
-Authentication
-
-├── JwtService.cs
-└── PasswordHasher.cs
-```
-
-Flow:
+Components
 
 ```
-Login Request
+JWT
+
+Refresh Tokens
+
+Password Hasher
+```
+
+Flow
+
+```text
+Login
 
 ↓
 
@@ -532,7 +686,7 @@ Find User
 
 ↓
 
-Check Password
+Verify Password
 
 ↓
 
@@ -540,159 +694,267 @@ Generate JWT
 
 ↓
 
-Return Token
+Generate Refresh Token
+
+↓
+
+Return Tokens
 ```
 
-Checklist:
+Checklist
 
-- [ ] Register works
-- [ ] Login works
-- [ ] JWT generated
-- [ ] Refresh token works
+- [ ] Register
+- [ ] Login
+- [ ] JWT
+- [ ] Refresh Token
 
 ---
 
-## Phase 14 — Authorization
+# Phase 16 — Authorization
 
-Location:
+Implement
 
-```
-Authorization
+- Roles
+- Permissions
+- Policies
 
-├── PermissionRequirement.cs
-└── PermissionHandler.cs
-```
-
-Implement:
-
-- Role-Based Access Control
-- Permission-Based Authorization
-
-Example:
+Example
 
 ```
 Admin
 
 Users.Create
+
 Users.Read
+
 Users.Update
+
 Users.Delete
 ```
 
-Checklist:
+Checklist
 
-- [ ] Roles work
-- [ ] Permissions work
-- [ ] Protected endpoints tested
+- [ ] Roles
+- [ ] Permissions
+- [ ] Protected Endpoints
 
 ---
 
-## Phase 15 — Middleware
+# Phase 17 — Middleware
 
-Location:
+Responsibilities
 
-```
+- Global Exception Handling
+- Logging
+- Standard Error Responses
+
+Flow
+
+```text
+Request
+
+↓
+
 Middleware
 
-└── ExceptionMiddleware.cs
+↓
+
+Controller
 ```
 
-Handles:
+Checklist
 
-- Global errors
-- Logging
-- Standard responses
-
-Checklist:
-
-- [ ] Exceptions handled
-- [ ] Logs created
+- [ ] Exception Handling
+- [ ] Logging
 
 ---
 
-## Phase 16 — Testing
+# Phase 18 — Testing
 
-Tools:
+Tools
 
+- Swagger
+- Postman
+- xUnit
+- Moq
+
+Test
+
+- Authentication
+- Authorization
+- CRUD
+- Validation
+
+Checklist
+
+- [ ] Unit Tests
+- [ ] API Tests
+
+---
+
+# Phase 19 — Deployment
+
+Checklist
+
+- [ ] Production Connection String
+- [ ] Environment Variables
+- [ ] Run Migration
+- [ ] Logging Enabled
+- [ ] Publish API
+
+---
+
+# Feature Development Workflow
+
+Every new feature should follow this order.
+
+```text
+Requirement
+      │
+      ▼
+Database Design
+      │
+      ▼
+Entity
+      │
+      ▼
+DbContext
+      │
+      ▼
+OnModelCreating
+      │
+      ▼
+Migration
+      │
+      ▼
+Database Update
+      │
+      ▼
+Repository
+      │
+      ▼
+Service
+      │
+      ▼
+DTO
+      │
+      ▼
+Validation
+      │
+      ▼
+Controller
+      │
+      ▼
+Swagger/Postman Test
+      │
+      ▼
+Unit Test
 ```
-xUnit
 
-Moq
+---
 
-Postman
+# Daily EF Core Workflow
 
-Swagger
+When changing the database model:
+
+```text
+Modify Entity
+      │
+      ▼
+Modify OnModelCreating (if needed)
+      │
+      ▼
+dotnet build
+      │
+      ▼
+dotnet ef migrations add MigrationName
+      │
+      ▼
+dotnet ef database update
+      │
+      ▼
+Verify SQL Server
 ```
 
-Test:
+---
 
+# Mental Model
+
+Whenever implementing a feature, think in this order.
+
+```text
+Requirement
+      │
+      ▼
+Database
+      │
+      ▼
+Entity
+      │
+      ▼
+DbContext
+      │
+      ▼
+Migration
+      │
+      ▼
+Database
+      │
+      ▼
+Repository
+      │
+      ▼
+Service
+      │
+      ▼
+DTO
+      │
+      ▼
+Validation
+      │
+      ▼
+Controller
+      │
+      ▼
+HTTP Response
 ```
+
+---
+
+# Tech Stack
+
+Backend
+
+- .NET 8
+- ASP.NET Core Web API
+- C# 12
+- Entity Framework Core 8
+- SQL Server Express
+
 Authentication
 
-Users
-
-Roles
-
-Permissions
+- JWT
+- Refresh Tokens
+- Password Hashing
 
 Authorization
-```
 
-Checklist:
+- Role-Based Access Control (RBAC)
+- Permission-Based Authorization
 
-- [ ] Unit tests created
-- [ ] API endpoints tested
+Validation
 
----
+- FluentValidation / DataAnnotations
 
-## Phase 17 — Deployment
+Logging
 
-Checklist:
+- Serilog
 
-- [ ] Production connection string
-- [ ] Database migration
-- [ ] Environment variables
-- [ ] Logging configured
-- [ ] API deployed
+Testing
 
----
+- xUnit
+- Moq
 
-## Final Mental Model
+Documentation
 
-When building features:
-
-```
-Requirement
-      |
-      ↓
-Database Table
-      |
-      ↓
-Entity Model
-      |
-      ↓
-DbContext
-      |
-      ↓
-Migration
-      |
-      ↓
-SQL Database
-      |
-      ↓
-Repository
-      |
-      ↓
-Service
-      |
-      ↓
-DTO
-      |
-      ↓
-Controller
-      |
-      ↓
-API Response
-```
-
----
+- Swagger / OpenAPI

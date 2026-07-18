@@ -1,6 +1,6 @@
 namespace IAM_API.Entities
 {
-    public class RefreshTokens
+    public class RefreshToken
     {
         public int Id { get; set; }
         public int UserId { get; set; }
