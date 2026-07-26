@@ -229,7 +229,7 @@ RefreshTokens
 AuditLogs
 ```
 
-Relationship
+Relationship ![alt text](image.png)
 
 ```text
 User
@@ -242,15 +242,6 @@ User
                             |
                             └── Permission
 ```
-
-| Entity 1   | Entity 2       | Relationship | Implementation                           |
-| ---------- | -------------- | ------------ | ---------------------------------------- |
-| User       | UserRole       | One-to-Many  | One user can have many UserRole records. |
-| Role       | UserRole       | One-to-Many  | One role can be assigned to many users.  |
-| Role       | RolePermission | One-to-Many  | One role can have many permissions.      |
-| Permission | RolePermission | One-to-Many  | One permission can belong to many roles. |
-
-![alt text](image.png)
 
 Checklist
 
