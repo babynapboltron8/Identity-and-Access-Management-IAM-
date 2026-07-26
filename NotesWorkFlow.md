@@ -250,6 +250,8 @@ User
 | Role       | RolePermission | One-to-Many  | One role can have many permissions.      |
 | Permission | RolePermission | One-to-Many  | One permission can belong to many roles. |
 
+![alt text](image.png)
+
 Checklist
 
 - [ ] Tables
