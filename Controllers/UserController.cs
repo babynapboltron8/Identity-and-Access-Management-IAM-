@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IAM_API.Data;
+using IAM_API.DTOs;
 using IAM_API.Entities;
 
 namespace IAM_API.dotneControllers
@@ -26,6 +27,48 @@ namespace IAM_API.dotneControllers
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
+        }
+
+        // POST: api/User
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<UserResponseDto>> CreateUser(CreateUserDto dto)
+        {
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = dto.Username,
+                Email = dto.Email.Trim(),
+                PasswordHash = dto.Password,
+                IsActive = true,
+                IsLocked = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            foreach (var roleId in dto.RoleIds)
+            {
+                user.UserRoles.Add(new UserRole
+                {
+                    UserId = user.Id,
+                    RoleId = roleId,
+                    AssignedAt = DateTime.UtcNow
+                });
+            }
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            var response = new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                IsActive = user.IsActive,
+                IsLocked = user.IsLocked,
+                CreatedAt = user.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, response);
         }
 
         // GET: api/User/#
@@ -71,17 +114,6 @@ namespace IAM_API.dotneControllers
             }
 
             return NoContent();
-        }
-
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
         // DELETE: api/User/#

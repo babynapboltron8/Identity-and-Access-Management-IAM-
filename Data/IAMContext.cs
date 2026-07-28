@@ -24,5 +24,13 @@ public class IAMContext : DbContext
         .WithOne(ur => ur.User)
         .HasForeignKey(ur => ur.UserId)
         .OnDelete(DeleteBehavior.Cascade);
+
+       modelBuilder.Entity<User>()
+        .HasIndex(u => u.Username)
+        .IsUnique();
+
+       modelBuilder.Entity<User>()
+        .HasIndex(u => u.Email)
+        .IsUnique();
     }
 }
