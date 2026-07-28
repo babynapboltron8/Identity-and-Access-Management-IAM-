@@ -34,6 +34,17 @@ namespace IAM_API.dotneControllers
         [HttpPost]
         public async Task<ActionResult<UserResponseDto>> CreateUser(CreateUserDto dto)
         {
+
+            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
+            {
+                return BadRequest("Username or Email already exists.");
+            }
+
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+            {
+                return BadRequest("Username or Email already exists.");
+            }
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
