@@ -16,19 +16,13 @@ public class IAMContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.UserRoles)
-            .WithOne(ur => ur.User)
-            .HasForeignKey(ur => ur.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+       modelBuilder.Entity<UserRole>()
+        .HasKey(ur => new { ur.UserId, ur.RoleId });
 
-        modelBuilder.Entity<UserRole>()
-            .HasOne(ur => ur.User)
-            .WithMany(r => r.UserRoles)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<UserRole>()
-            .HasKey(ur => new { ur.UserId, ur.RoleId});
-        
+       modelBuilder.Entity<User>()
+        .HasMany(u => u.UserRoles)
+        .WithOne(ur => ur.User)
+        .HasForeignKey(ur => ur.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }
