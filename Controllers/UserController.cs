@@ -28,9 +28,9 @@ namespace IAM_API.dotneControllers
             return await _context.Users.ToListAsync();
         }
 
-        // GET: api/User/5
+        // GET: api/User/#
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<User>> GetUser(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
 
@@ -42,10 +42,10 @@ namespace IAM_API.dotneControllers
             return user;
         }
 
-        // PUT: api/User/5
+        // PUT: api/User/#
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(Guid id, User user)
         {
             if (id != user.Id)
             {
@@ -84,9 +84,9 @@ namespace IAM_API.dotneControllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // DELETE: api/User/5
+        // DELETE: api/User/#
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -100,7 +100,7 @@ namespace IAM_API.dotneControllers
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(Guid id)
         {
             return _context.Users.Any(e => e.Id == id);
         }

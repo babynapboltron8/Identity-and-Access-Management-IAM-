@@ -11,12 +11,8 @@ public class IAMContext : DbContext
     }
 
     public DbSet<User> Users { get; set; } = null!;
-    public DbSet<Role> Roles { get; set; } = null!;
-    public DbSet<Permission> Permissions { get; set; } = null!;
     public DbSet<UserRole> UserRoles { get; set; } = null!;
-    public DbSet<RolePermission> RolePermissions { get; set; } = null!;
-    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
-    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,9 +23,12 @@ public class IAMContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserRole>()
-            .HasOne(ur => ur.Role)
+            .HasOne(ur => ur.User)
             .WithMany(r => r.UserRoles)
-            .HasForeignKey(ur => ur.RoleId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserRole>()
+            .HasKey(ur => new { ur.UserId, ur.RoleId});
+        
     }
 }
