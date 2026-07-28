@@ -2,11 +2,13 @@ namespace IAM_API.Entities;
 
 public class User
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Username { get; set; } = null!;
     public string Email { get; set; } = null!;
     public string PasswordHash { get; set; } = null!;
     public bool IsActive { get; set; }
     public bool IsLocked { get; set; }
     public DateTime CreatedAt { get; set; }
+
+     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }
