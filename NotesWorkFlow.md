@@ -1488,3 +1488,773 @@ Testing                    xUnit + Moq
 
 
 Documentation              Swagger / OpenAPI
+
+# End of Section 2
+
+
+# Section 3: Complete ASP.NET Core Web API Example
+
+## Create User API Flow
+
+Let's create one complete example using the IAM API style.
+
+We will implement:
+
+```
+POST /api/users
+```
+
+Purpose:
+
+> Create a new user with a role.
+
+---
+
+# Request Flow
+
+```
+HTTP Request
+
+      |
+      v
+
+Controller
+
+      |
+      v
+
+Service
+
+      |
+      v
+
+Repository
+
+      |
+      v
+
+DbContext
+
+      |
+      v
+
+SQL Database
+```
+
+---
+
+# Additional Components
+
+```
+Authentication
+    -> Password hashing and JWT handling
+
+Authorization
+    -> Check user roles and permissions
+
+Middleware
+    -> Global request processing
+
+DTOs
+    -> Control API input and output
+
+Entities
+    -> Represent database tables
+
+Migrations
+    -> Track database changes
+```
+
+---
+
+# Project Structure
+
+```
+IAM_API
+
+Controllers
+ └── UsersController.cs
+
+Data
+ └── IAMContext.cs
+
+Entities
+ ├── User.cs
+ ├── Role.cs
+ └── UserRole.cs
+
+DTOs
+ ├── CreateUserDto.cs
+ └── UserResponseDto.cs
+
+Repositories
+ ├── IUserRepository.cs
+ └── UserRepository.cs
+
+Services
+ ├── IUserService.cs
+ └── UserService.cs
+
+Authentication
+ └── PasswordHasherService.cs
+
+Authorization
+ └── RoleChecker.cs
+
+Middleware
+ └── ExceptionMiddleware.cs
+
+Migrations
+ └── Migration files
+```
+
+---
+
+# 1. Entity Layer
+
+Entities represent database tables.
+
+## User.cs
+
+```csharp
+public class User
+{
+    public Guid Id { get; set; }
+
+    public string Username { get; set; } = "";
+
+    public string Email { get; set; } = "";
+
+    public string PasswordHash { get; set; } = "";
+
+
+    public ICollection<UserRole> UserRoles { get; set; }
+        = new List<UserRole>();
+}
+```
+
+Database:
+
+```
+Users
+----------------
+Id
+Username
+Email
+PasswordHash
+```
+
+---
+
+## Role.cs
+
+```csharp
+public class Role
+{
+    public int Id { get; set; }
+
+    public string Name { get; set; } = "";
+}
+```
+
+Database:
+
+```
+Roles
+----------------
+Id
+Name
+```
+
+---
+
+## UserRole.cs
+
+Junction table between User and Role.
+
+```csharp
+public class UserRole
+{
+    public Guid UserId { get; set; }
+
+    public int RoleId { get; set; }
+
+
+    public User User { get; set; } = null!;
+
+    public Role Role { get; set; } = null!;
+}
+```
+
+Database:
+
+```
+UserRoles
+----------------
+UserId
+RoleId
+```
+
+---
+
+# 2. DTO Layer
+
+DTOs define what the API receives and returns.
+
+The API should not directly expose Entity classes.
+
+---
+
+## CreateUserDto.cs
+
+Request:
+
+```json
+{
+    "username": "john",
+    "email": "john@gmail.com",
+    "password": "123456",
+    "roleId": 2
+}
+```
+
+Class:
+
+```csharp
+public class CreateUserDto
+{
+    public string Username { get; set; } = "";
+
+    public string Email { get; set; } = "";
+
+    public string Password { get; set; } = "";
+
+    public int RoleId { get; set; }
+}
+```
+
+---
+
+## UserResponseDto.cs
+
+Response:
+
+```json
+{
+    "id": "abc123",
+    "username": "john",
+    "email": "john@gmail.com"
+}
+```
+
+Class:
+
+```csharp
+public class UserResponseDto
+{
+    public Guid Id { get; set; }
+
+    public string Username { get; set; } = "";
+
+    public string Email { get; set; } = "";
+}
+```
+
+---
+
+# 3. Data Layer
+
+DbContext connects Entity Framework Core to SQL Server.
+
+```csharp
+public class IAMContext : DbContext
+{
+    public DbSet<User> Users { get; set; }
+
+    public DbSet<Role> Roles { get; set; }
+
+    public DbSet<UserRole> UserRoles { get; set; }
+
+
+    public IAMContext(
+        DbContextOptions<IAMContext> options)
+        : base(options)
+    {
+
+    }
+}
+```
+
+Responsibility:
+
+```
+Application
+      |
+      v
+DbContext
+      |
+      v
+SQL Database
+```
+
+---
+
+# 4. Repository Layer
+
+Repository handles database operations only.
+
+It should not contain business rules.
+
+---
+
+## IUserRepository.cs
+
+```csharp
+public interface IUserRepository
+{
+    Task Add(User user);
+
+    Task<bool> EmailExists(string email);
+}
+```
+
+---
+
+## UserRepository.cs
+
+```csharp
+public class UserRepository : IUserRepository
+{
+    private readonly IAMContext _context;
+
+
+    public UserRepository(IAMContext context)
+    {
+        _context = context;
+    }
+
+
+    public async Task Add(User user)
+    {
+        _context.Users.Add(user);
+
+        await _context.SaveChangesAsync();
+    }
+
+
+    public async Task<bool> EmailExists(string email)
+    {
+        return await _context.Users
+            .AnyAsync(x => x.Email == email);
+    }
+}
+```
+
+Repository responsibility:
+
+```
+Service
+
+    |
+
+Repository
+
+    |
+
+SQL Query
+```
+
+Example:
+
+```
+INSERT INTO Users
+```
+
+---
+
+# 5. Authentication Layer
+
+Handles password security and JWT.
+
+Example password hashing:
+
+```csharp
+public class PasswordHasherService
+{
+    public string Hash(string password)
+    {
+        return BCrypt.Net.BCrypt
+            .HashPassword(password);
+    }
+}
+```
+
+Before:
+
+```
+123456
+```
+
+After:
+
+```
+$2a$11$92hd83hd83h....
+```
+
+Database stores the hash, not the original password.
+
+---
+
+# 6. Service Layer
+
+Service contains business logic.
+
+This is the brain of the application.
+
+Responsibilities:
+
+```
+Validate data
+
+      |
+
+Hash password
+
+      |
+
+Create Entity
+
+      |
+
+Call Repository
+```
+
+Example:
+
+```csharp
+public class UserService
+{
+    private readonly IUserRepository _repository;
+
+    private readonly PasswordHasherService _hasher;
+
+
+    public UserService(
+        IUserRepository repository,
+        PasswordHasherService hasher)
+    {
+        _repository = repository;
+        _hasher = hasher;
+    }
+
+
+    public async Task<UserResponseDto> CreateUser(
+        CreateUserDto dto)
+    {
+
+        if(await _repository.EmailExists(dto.Email))
+        {
+            throw new Exception("Email exists");
+        }
+
+
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+
+            Username = dto.Username,
+
+            Email = dto.Email,
+
+            PasswordHash =
+                _hasher.Hash(dto.Password)
+        };
+
+
+        await _repository.Add(user);
+
+
+        return new UserResponseDto
+        {
+            Id = user.Id,
+
+            Username = user.Username,
+
+            Email = user.Email
+        };
+    }
+}
+```
+
+---
+
+# 7. Controller Layer
+
+Controller handles HTTP requests only.
+
+```csharp
+[ApiController]
+[Route("api/users")]
+public class UsersController : ControllerBase
+{
+
+    private readonly UserService _service;
+
+
+    public UsersController(UserService service)
+    {
+        _service = service;
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        CreateUserDto dto)
+    {
+
+        var result =
+            await _service.CreateUser(dto);
+
+
+        return Ok(result);
+
+    }
+}
+```
+
+Controller responsibility:
+
+```
+Receive JSON
+
+      |
+
+Call Service
+
+      |
+
+Return HTTP Response
+```
+
+---
+
+# 8. Authorization Layer
+
+Controls access using roles.
+
+Example:
+
+Only Admin can create users.
+
+```csharp
+[Authorize(Roles = "Admin")]
+[HttpPost]
+public async Task<IActionResult> Create(...)
+```
+
+JWT contains:
+
+```
+User:
+john
+
+Role:
+Admin
+```
+
+Flow:
+
+```
+JWT Token
+
+      |
+
+Check Role
+
+      |
+
+Allow or Deny Request
+```
+
+---
+
+# 9. Middleware Layer
+
+Middleware handles global request processing.
+
+Example:
+
+Global exception handling.
+
+Instead of:
+
+```csharp
+try
+{
+
+}
+catch
+{
+
+}
+```
+
+inside every controller.
+
+Create:
+
+```csharp
+public class ExceptionMiddleware
+{
+    public async Task Invoke(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch(Exception ex)
+        {
+            context.Response.StatusCode = 500;
+
+            await context.Response
+                .WriteAsync(ex.Message);
+        }
+    }
+}
+```
+
+Pipeline:
+
+```
+Request
+
+ |
+
+Exception Middleware
+
+ |
+
+Authentication
+
+ |
+
+Authorization
+
+ |
+
+Controller
+```
+
+---
+
+# 10. Migration Layer
+
+Migrations track database changes.
+
+Create migration:
+
+```bash
+dotnet ef migrations add InitialCreate
+```
+
+Creates:
+
+```
+Migrations
+
+ |
+
+20260729_InitialCreate.cs
+```
+
+Apply migration:
+
+```bash
+dotnet ef database update
+```
+
+Creates SQL tables.
+
+Flow:
+
+```
+Entity Changes
+
+      |
+
+Migration
+
+      |
+
+Database Update
+```
+
+---
+
+# Complete Request Example
+
+Client sends:
+
+```
+POST /api/users
+```
+
+Body:
+
+```json
+{
+    "username": "john",
+    "email": "john@test.com",
+    "password": "123456"
+}
+```
+
+Execution:
+
+```
+1. Middleware receives request
+
+2. Controller receives DTO
+
+3. Controller calls UserService
+
+4. UserService validates email
+
+5. UserService hashes password
+
+6. Repository saves User
+
+7. DbContext sends SQL INSERT
+
+8. SQL Server saves data
+
+9. Response DTO returns to client
+```
+
+---
+
+# Architecture Summary
+
+```
+Controller
+    |
+    | HTTP handling
+
+Service
+    |
+    | Business logic
+
+Repository
+    |
+    | Database operations
+
+DbContext
+    |
+    | EF Core
+
+SQL Database
+```
+
+Each layer has one responsibility.
+
+# End of Section 3
