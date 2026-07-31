@@ -1494,11 +1494,9 @@ Documentation              Swagger / OpenAPI
 
 # Section 3: Complete ASP.NET Core Web API Example
 
-## Create User API Flow
+> User API Flow
 
-Let's create one complete example using the IAM API style.
-
-We will implement:
+Implement:
 
 ```
 POST /api/users
