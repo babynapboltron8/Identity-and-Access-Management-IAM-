@@ -17,31 +17,36 @@ public class IAMContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-       modelBuilder.Entity<UserRole>()
-        .HasKey(ur => new { ur.UserId, ur.RoleId });
 
-       modelBuilder.Entity<User>()
-        .HasMany(u => u.UserRoles)
-        .WithOne(ur => ur.User)
-        .HasForeignKey(ur => ur.UserId)
-        .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<UserRole>()
+            .HasKey(ur => new { ur.UserId, ur.RoleId });
 
-       modelBuilder.Entity<User>()
-        .HasIndex(u => u.Username)
-        .IsUnique();
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Username)
+            .IsUnique();
 
-       modelBuilder.Entity<User>()
-        .HasIndex(u => u.Email)
-        .IsUnique();
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
 
-       modelBuilder.Entity<Role>()
-        .HasIndex(r => r.Name)
-        .IsUnique();
+        modelBuilder.Entity<User>()
+            .HasMany(ur => ur.UserRoles)
+            .WithOne(u => u.User)
+            .HasForeignKey(ur => ur.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-       modelBuilder.Entity<Role>()
-        .HasMany(r => r.UserRoles)
-        .WithOne(ur => ur.Role)
-        .HasForeignKey(ur => ur.RoleId)
-        .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Role>()
+            .HasIndex(r => r.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<Role>()
+            .HasIndex(r => r.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<Role>()
+            .HasMany(ur => ur.UserRoles)
+            .WithOne(r => r.Role)
+            .HasForeignKey(ur => ur.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
