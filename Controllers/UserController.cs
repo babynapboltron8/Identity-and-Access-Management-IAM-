@@ -22,15 +22,12 @@ namespace IAM_API.dotneControllers
             _context = context;
         }
 
-        // GET: api/User
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<UserResponseDto>> CreateUser(CreateUserDto dto)
         {
@@ -103,7 +100,6 @@ namespace IAM_API.dotneControllers
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, response);
         }
 
-        // GET: api/User/#
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(Guid id)
         {
@@ -117,8 +113,7 @@ namespace IAM_API.dotneControllers
             return user;
         }
 
-        // PUT: api/User/#
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(Guid id, User user)
         {
@@ -148,7 +143,7 @@ namespace IAM_API.dotneControllers
             return NoContent();
         }
 
-        // DELETE: api/User/#
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
