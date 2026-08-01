@@ -1,6 +1,6 @@
 # Feature Add Workflow
 
-When adding another feature to this API, follow this order:
+Adding API, follow this order:
 
 1. Entities
 2. DbContext
@@ -8,20 +8,21 @@ When adding another feature to this API, follow this order:
 4. Migrations
 5. Repository
 6. Service
-7. Controller
-8. Test with Swagger/Postman
+7. Dependency Injection
+8. Controller
+9. Test with Swagger/Postman
 
 ## Simple Flow
 
 ### 1. Entities
 
-Create the data model and add the new entity class in the Entities folder.
+Create the data model and add the new entity class in the `Entities` folder.
 
-### 2. DbContext
+### 2. Data/DbContext
 
-Update the DbContext and add the new DbSet if needed.
+Update the `DbContext` and add the new `DbSet` if needed.
 
-### 3. Relationships
+### 3. Data/OnModel (EF Relationships)
 
 Configure how the new entity connects to other entities.
 
@@ -42,16 +43,32 @@ Add the repository layer for database access.
 
 Add the business logic in the service layer.
 
-### 7. Controller
+### 7. Dependency Injection
+
+Register the repository and service in `Program.cs`.
+
+```csharp
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+```
+
+### 8. Controller
 
 Create or update the controller endpoint for the feature.
 
-### 8. Test with Swagger/Postman
+### 9. Test with Swagger/Postman
 
-Run the endpoint and verify the request and response.
+Build, run, and test the API.
+
+```bash
+dotnet build
+dotnet run
+```
+
+Then verify the endpoint using Swagger or Postman.
 
 ## Quick Reminder
 
 Feature flow:
 
-Entities -> DbContext -> Relationships -> Migrations -> Repository -> Service -> Controller -> Test
+**Entities → DbContext → Relationships → Migrations → Repository → Service → Dependency Injection → Controller → Build → Run → Test**

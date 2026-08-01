@@ -1,6 +1,9 @@
 using IAM_API.Data;
 using IAM_API.Entities;
 using Microsoft.EntityFrameworkCore;
+using IAM_API.Repositories;
+using IAM_API.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<IAMContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
