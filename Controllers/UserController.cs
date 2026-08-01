@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IAM_API.Services;
 using Microsoft.AspNetCore.Mvc;
+using IAM_API.DTOs;
 
 namespace IAM_API.Controllers;
 
@@ -24,5 +25,27 @@ public class UsersController : ControllerBase
         var users = await _userService.GetAllUsersAsync();
 
         return Ok(users);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetUserById(Guid id)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+
+        if (user == null)
+            return NotFound();
+
+        return Ok(user);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateUser(CreateUserRequestDTO request)
+    {
+        var user = await _userService.CreateUserAsync(request);
+
+        return CreatedAtAction(
+            nameof(GetUserById),
+            new { id = user.Id },
+            user);
     }
 }

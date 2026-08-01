@@ -18,6 +18,8 @@ Adding API, follow this order:
 
 Create the data model and add the new entity class in the `Entities` folder.
 
+> Optional: Create Request/Response DTOs if the API should not expose the entity directly.
+
 ### 2. Data/DbContext
 
 Update the `DbContext` and add the new `DbSet` if needed.
@@ -55,6 +57,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 ### 8. Controller
 
 Create or update the controller endpoint for the feature.
+
+> Optional: Accept Request DTOs and return Response DTOs.
 
 ### 9. Test with Swagger/Postman
 
