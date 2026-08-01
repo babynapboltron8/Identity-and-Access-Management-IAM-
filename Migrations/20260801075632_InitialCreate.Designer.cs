@@ -4,6 +4,7 @@ using IAM_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IAM_API.Migrations
 {
     [DbContext(typeof(IAMContext))]
-    partial class IAMContextModelSnapshot : ModelSnapshot
+    [Migration("20260801075632_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,7 +103,7 @@ namespace IAM_API.Migrations
             modelBuilder.Entity("IAM_API.Entities.UserRole", b =>
                 {
                     b.HasOne("IAM_API.Entities.Role", "Role")
-                        .WithMany("UserRoles")
+                        .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -114,11 +117,6 @@ namespace IAM_API.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("IAM_API.Entities.Role", b =>
-                {
-                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("IAM_API.Entities.User", b =>

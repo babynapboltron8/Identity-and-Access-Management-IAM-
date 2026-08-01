@@ -11,6 +11,7 @@ public class IAMContext : DbContext
     }
 
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Role> Roles { get; set; } = null!;
     public DbSet<UserRole> UserRoles { get; set; } = null!;
     
 
@@ -32,5 +33,11 @@ public class IAMContext : DbContext
        modelBuilder.Entity<User>()
         .HasIndex(u => u.Email)
         .IsUnique();
+
+       modelBuilder.Entity<Role>()
+        .HasMany(r => r.UserRoles)
+        .WithOne(ur => ur.Role)
+        .HasForeignKey(ur => ur.RoleId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }
