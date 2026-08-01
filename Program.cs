@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using IAM_API.Data;
+using IAM_API.Entities;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,18 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<IAMContext>();
+
+    if (!context.Database.CanConnect())
+    {
+        context.Database.Migrate();
+    }
+
+    SeedRoles(context);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -29,3 +42,22 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static void SeedRoles(IAMContext context)
+{
+    var defaultRoles = new[]
+    {
+        new Role { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "Admin", Description = "Administrator" },
+        new Role { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "User", Description = "Regular user" }
+    };
+
+    foreach (var role in defaultRoles)
+    {
+        if (!context.Roles.Any(r => r.Name == role.Name))
+        {
+            context.Roles.Add(role);
+        }
+    }
+
+    context.SaveChanges();
+}

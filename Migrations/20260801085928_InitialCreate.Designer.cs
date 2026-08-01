@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IAM_API.Migrations
 {
     [DbContext(typeof(IAMContext))]
-    [Migration("20260801074517_AddRoleEntities")]
-    partial class AddRoleEntities
+    [Migration("20260801085928_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,9 +37,12 @@ namespace IAM_API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Roles");
                 });
@@ -103,7 +106,7 @@ namespace IAM_API.Migrations
             modelBuilder.Entity("IAM_API.Entities.UserRole", b =>
                 {
                     b.HasOne("IAM_API.Entities.Role", "Role")
-                        .WithMany()
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -117,6 +120,11 @@ namespace IAM_API.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("IAM_API.Entities.Role", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("IAM_API.Entities.User", b =>

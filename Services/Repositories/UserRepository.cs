@@ -30,6 +30,14 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
+    public async Task<List<Guid>> GetRoleIdsAsync(List<Guid> roleIds)
+    {
+        return await _context.Roles
+            .Where(r => roleIds.Contains(r.Id))
+            .Select(r => r.Id)
+            .ToListAsync();
+    }
+
     public async Task AddAsync(User user)
     {
         _context.Users.Add(user);

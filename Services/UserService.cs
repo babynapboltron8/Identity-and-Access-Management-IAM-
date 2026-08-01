@@ -55,6 +55,19 @@ public class UserService : IUserService
             return (null, "Username or Email already exists.");
         }
 
+        var distinctRoleIds = dto.RoleIds.Distinct().ToList();
+
+        if (distinctRoleIds.Count > 0)
+        {
+            var existingRoleIds = await _userRepository.GetRoleIdsAsync(distinctRoleIds);
+            var invalidRoleIds = distinctRoleIds.Except(existingRoleIds).ToList();
+
+            if (invalidRoleIds.Count > 0)
+            {
+                return (null, $"Invalid role IDs: {string.Join(", ", invalidRoleIds)}");
+            }
+        }
+
         var user = new User
         {
             Id = Guid.NewGuid(),
@@ -66,7 +79,7 @@ public class UserService : IUserService
             CreatedAt = DateTime.UtcNow
         };
 
-        foreach (var roleId in dto.RoleIds)
+        foreach (var roleId in distinctRoleIds)
         {
             user.UserRoles.Add(new UserRole
             {

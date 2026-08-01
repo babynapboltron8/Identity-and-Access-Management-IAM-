@@ -35,6 +35,10 @@ public class IAMContext : DbContext
         .IsUnique();
 
        modelBuilder.Entity<Role>()
+        .HasIndex(r => r.Name)
+        .IsUnique();
+
+       modelBuilder.Entity<Role>()
         .HasMany(r => r.UserRoles)
         .WithOne(ur => ur.Role)
         .HasForeignKey(ur => ur.RoleId)

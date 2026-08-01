@@ -45,6 +45,27 @@ namespace IAM_API.dotneControllers
                 return BadRequest("Username or Email already exists.");
             }
 
+            var distinctRoleIds = dto.RoleIds
+                .Distinct()
+                .ToList();
+
+            if (distinctRoleIds.Count > 0)
+            {
+                var existingRoleIds = await _context.Roles
+                    .Where(r => distinctRoleIds.Contains(r.Id))
+                    .Select(r => r.Id)
+                    .ToListAsync();
+
+                var invalidRoleIds = distinctRoleIds
+                    .Except(existingRoleIds)
+                    .ToList();
+
+                if (invalidRoleIds.Count > 0)
+                {
+                    return BadRequest($"Invalid role IDs: {string.Join(", ", invalidRoleIds)}");
+                }
+            }
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -56,7 +77,7 @@ namespace IAM_API.dotneControllers
                 CreatedAt = DateTime.UtcNow
             };
 
-            foreach (var roleId in dto.RoleIds)
+            foreach (var roleId in distinctRoleIds)
             {
                 user.UserRoles.Add(new UserRole
                 {
