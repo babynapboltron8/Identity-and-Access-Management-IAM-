@@ -4,12 +4,12 @@ When adding a new API feature, follow this order:
 
 1. Entities
 2. DbContext
-3. Relationships / EF Configuration
+3. Relationships / EF Configuration _(In OnModelCreating)_
 4. Migrations
-5. Seeder _(if default/initial data is needed)_
+5. Seeder _(if default/initial data is needed)_ _(In Program.cs)_
 6. Repository
 7. Service
-8. Dependency Injection
+8. Dependency Injection _(In Program.cs)_
 9. Controller
 10. Build & Test with Swagger/Postman
 
